@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Bos"
+  given-names: "Thijs"
+- family-names: "Schmidt-Hieber"
+  given-names: "Johannes"
+title: "Simulation code: Convergence guarantees for forward gradient descent in the
+linear regression model"
+version: 1.0.0
+date-released: 2024-01-02
+url: "https://github.com/Bostjm/SimulationCodeForwardGradient"
