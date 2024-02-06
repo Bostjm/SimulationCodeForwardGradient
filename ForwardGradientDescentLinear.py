@@ -38,9 +38,9 @@ def ForwardGradient(X,Y,ChildSeeds,d,n,a,runs): #Simple implementation using tha
         ThetaEstimate[0,:,i] = InitialValue
         RNG = np.random.default_rng(seed=ChildSeeds[5+i])
         for k in range (1,n):
-            alpha = a/(k+a*(d+2)*(d+2))
+            alpha = a/(k+a*(d+2)*(d+2)) #Theoretical rate from Theorem 3.2
             Xi = RNG.standard_normal(size=d)
-            ThetaEstimate[k,:,i]=ThetaEstimate[k-1,:,i]-alpha*np.inner( -(Y[k]-np.inner(X[k,:],ThetaEstimate[k-1,:,i]))*X[k,:] , Xi)*Xi
+            ThetaEstimate[k,:,i]=ThetaEstimate[k-1,:,i]-alpha*np.inner( -(Y[k]-np.inner(X[k,:],ThetaEstimate[k-1,:,i]))*X[k,:] , Xi)*Xi #Update rule of equation (2.2)
     return ThetaEstimate
 
 def GradientDescent(X,Y,ChildSeeds,d,n,a): #Stochastic gradient descent using a single point for each update
@@ -50,7 +50,7 @@ def GradientDescent(X,Y,ChildSeeds,d,n,a): #Stochastic gradient descent using a 
     ThetaEstimate[0,:]= RNGInt.standard_normal(size=d)
     for k in range (1,n):
         alpha = a/(k+a*(d+2)*(d+2)) #Same as the forward gradient learning rate.
-        ThetaEstimate[k,:]=ThetaEstimate[k-1,:]+alpha*(Y[k]-np.inner(X[k,:],ThetaEstimate[k-1,:]))*X[k,:]
+        ThetaEstimate[k,:]=ThetaEstimate[k-1,:]+alpha*(Y[k]-np.inner(X[k,:],ThetaEstimate[k-1,:]))*X[k,:] #Update rule of equation (2.1)
     return ThetaEstimate
 
 ####################
@@ -63,11 +63,14 @@ def MSEPlotsLog(MSE,MSESGD,n,d,runs): #Plot the functions with their MSE on a lo
     
     YBound = np.zeros(n)
     YBoundOptimal = np.zeros(n)
+    YBoundNoLog = np.zeros(n)
     YBound[0] = d*d*np.log(d)
     YBoundOptimal[0] = d
+    YBoundNoLog[0]=d*d
     for i in range (1,n):
-        YBound[i] =d*d*np.log(d)/Xplot[i]
-        YBoundOptimal[i] = d/Xplot[i]
+        YBound[i] =d*d*np.log(d)/Xplot[i] #The order of the upper bound found in the paper
+        YBoundOptimal[i] = d/Xplot[i] #The theoretical optimal rate achievable with gradient descent
+        YBoundNoLog[i] = d*d/Xplot[i] #The order of the upper bound without the log(d) factor
     
     figureMSE, axMSE = plt.subplots()
     axMSE.set_xlabel('Iterations')
@@ -76,6 +79,7 @@ def MSEPlotsLog(MSE,MSESGD,n,d,runs): #Plot the functions with their MSE on a lo
     axMSE.plot(Xplot,MSESGD, color="red", linestyle='solid', linewidth= 2.5)
     axMSE.plot(Xplot,MSE,color="blue" ,linestyle='solid', linewidth= 1) 
     axMSE.plot(Xplot,YBound, color="black", linestyle='dashed', linewidth= 2.5)
+    axMSE.plot(Xplot,YBoundNoLog, color="black", linestyle='dashed', linewidth= 2.5)
     axMSE.plot(Xplot,YBoundOptimal, color="black", linestyle='dashed', linewidth= 2.5)  
     
     axMSE.set_yscale('log')
@@ -84,17 +88,20 @@ def MSEPlotsLog(MSE,MSESGD,n,d,runs): #Plot the functions with their MSE on a lo
     figureMSE.savefig('MSELogarithmicForwardGradientSGDn{}d{}.pdf'.format(n,d), bbox_inches='tight', dpi=300)
 
 
-def MSEPlotsLogLog(MSE,MSESGD,n,d,runs): #Plot the functions with their MSE on a log-10 scale and the iterations on a log 10 scale
+def MSEPlotsLogLog(MSE,MSESGD,n,d,runs): #Plot the functions with their MSE on a log-10 scale and the iterations on a log-10 scale
     plt.rcParams.update({'font.size': 16})
     Xplot = np.linspace(0.0,n, n)
     
     YBound = np.zeros(n)
     YBoundOptimal = np.zeros(n)
+    YBoundNoLog = np.zeros(n)
     YBound[0] = d*d*np.log(d)
     YBoundOptimal[0] = d
+    YBoundNoLog[0]=d*d
     for i in range (1,n):
-        YBound[i] = d*d*np.log(d)/Xplot[i]
-        YBoundOptimal[i] = d/Xplot[i]
+        YBound[i] =d*d*np.log(d)/Xplot[i] #The order of the upper bound found in the paper
+        YBoundOptimal[i] = d/Xplot[i] #The theoretical optimal rate achievable with gradient descent
+        YBoundNoLog[i] = d*d/Xplot[i] #The order of the upper bound without the log(d) factor
     
     figureMSE, axMSE = plt.subplots()
 
@@ -103,6 +110,7 @@ def MSEPlotsLogLog(MSE,MSESGD,n,d,runs): #Plot the functions with their MSE on a
     axMSE.plot(Xplot,MSESGD, color="red", linestyle='solid', linewidth= 2.5)
     axMSE.plot(Xplot,MSE,color="blue" ,linestyle='solid', linewidth= 1)
     axMSE.plot(Xplot,YBound, color="black", linestyle='dashed', linewidth= 2.5)
+    axMSE.plot(Xplot,YBoundNoLog, color="black", linestyle='dashed', linewidth= 2.5)
     axMSE.plot(Xplot,YBoundOptimal, color="black", linestyle='dashed', linewidth= 2.5)
 
     axMSE.set_xlim([1.0,n])
